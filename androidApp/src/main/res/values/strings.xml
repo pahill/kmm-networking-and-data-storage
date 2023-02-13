@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KmmApp</string>
+    <string name="app_name">SpaceX Launches</string>
 
     <string name="successful">Successful</string>
     <string name="unsuccessful">Unsuccessful</string>

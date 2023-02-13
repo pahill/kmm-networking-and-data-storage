@@ -10,7 +10,7 @@ struct ContentView: View {
             .navigationBarTitle("SpaceX Launches")
             .navigationBarItems(trailing:
                 Button("Reload") {
-                    self.viewModel.loadLaunches(forceReload: true)
+                    self.viewModel.loadLaunches()
             })
         }
     }
@@ -43,12 +43,12 @@ extension ContentView {
 
         init(sdk: SpaceXSDK) {
             self.sdk = sdk
-            self.loadLaunches(forceReload: false)
+            self.loadLaunches()
         }
 
-        func loadLaunches(forceReload: Bool) {
+        func loadLaunches() {
             self.launches = .loading
-            sdk.getLaunches(forceReload: forceReload, completionHandler: { launches, error in
+            sdk.getLaunches(completionHandler: { launches, error in
                 if let launches = launches {
                     self.launches = .result(launches)
                 } else {

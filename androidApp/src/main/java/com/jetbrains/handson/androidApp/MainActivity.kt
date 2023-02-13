@@ -1,68 +1,134 @@
 package com.jetbrains.handson.androidApp
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.FrameLayout
-import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.jetbrains.handson.androidApp.ui.theme.AppTheme
 import com.jetbrains.handson.kmm.shared.SpaceXSDK
-import com.jetbrains.handson.kmm.shared.cache.DatabaseDriverFactory
-import kotlinx.coroutines.MainScope
+import com.jetbrains.handson.kmm.shared.entity.RocketLaunch
 import kotlinx.coroutines.launch
-import androidx.core.view.isVisible
-import kotlinx.coroutines.cancel
 
+class MainActivity : ComponentActivity() {
 
-class MainActivity : AppCompatActivity() {
-    private val mainScope = MainScope()
+    private val sdk = SpaceXSDK()
 
-    private lateinit var launchesRecyclerView: RecyclerView
-    private lateinit var progressBarView: FrameLayout
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-
-    private val sdk = SpaceXSDK(DatabaseDriverFactory(this))
-
-    private val launchesRvAdapter = LaunchesRvAdapter(listOf())
-
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = "SpaceX Launches"
-        setContentView(R.layout.activity_main)
 
-        launchesRecyclerView = findViewById(R.id.launchesListRv)
-        progressBarView = findViewById(R.id.progressBar)
-        swipeRefreshLayout = findViewById(R.id.swipeContainer)
+        setContent {
+            AppTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(title = { TopBar() })
+                        }
+                    ) { paddingValues ->
+                        val refreshScope = rememberCoroutineScope()
+                        var refreshing by remember { mutableStateOf(false) }
+                        var listRocketLaunch by remember { mutableStateOf(emptyList<RocketLaunch>()) }
 
-        launchesRecyclerView.adapter = launchesRvAdapter
-        launchesRecyclerView.layoutManager = LinearLayoutManager(this)
+                        LaunchedEffect(Unit) {
+                            listRocketLaunch = sdk.getLaunches()
+                        }
 
-        swipeRefreshLayout.setOnRefreshListener {
-            swipeRefreshLayout.isRefreshing = false
-            displayLaunches(true)
-        }
+                        fun refresh() {
+                            refreshScope.launch {
+                                refreshing = true
+                                listRocketLaunch = sdk.getLaunches()
+                                refreshing = false
+                            }
+                        }
 
-        displayLaunches(false)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mainScope.cancel()
-    }
-
-    private fun displayLaunches(needReload: Boolean) {
-        progressBarView.isVisible = true
-        mainScope.launch {
-            kotlin.runCatching {
-                sdk.getLaunches(needReload)
-            }.onSuccess {
-                launchesRvAdapter.launches = it
-                launchesRvAdapter.notifyDataSetChanged()
-            }.onFailure {
-                Toast.makeText(this@MainActivity, it.localizedMessage, Toast.LENGTH_SHORT).show()
+                        PullToRefreshRocketLaunches(
+                            refreshing = refreshing,
+                            refresh = ::refresh,
+                            listRocketLaunch = listRocketLaunch,
+                            modifier = Modifier.padding((paddingValues))
+                        )
+                    }
+                }
             }
-            progressBarView.isVisible = false
         }
+    }
+}
+
+@Composable
+fun MissionStatus(modifier: Modifier, launchSuccess: Boolean?) {
+    val (text: String, color: Color) = when (launchSuccess) {
+        true -> stringResource(R.string.successful) to colorResource(R.color.colorSuccessful)
+        false -> stringResource(R.string.unsuccessful) to colorResource(R.color.colorUnsuccessful)
+        null -> stringResource(R.string.no_data) to colorResource(R.color.colorNoData)
+    }
+    Text(modifier = modifier, text = text, color = color)
+}
+
+@Composable
+fun RocketLaunch(modifier: Modifier, rocketLaunch: RocketLaunch) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        backgroundColor = Color.White,
+        elevation = 2.dp,
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Text(text = stringResource(id = R.string.mission_name_field).format(rocketLaunch.missionName))
+            MissionStatus(Modifier.padding(top = 8.dp), rocketLaunch.launchSuccess)
+            Text(
+                modifier = Modifier.padding(top = 8.dp),
+                text = stringResource(id = R.string.launch_year_field).format(rocketLaunch.launchYear)
+            )
+            Text(
+                modifier = Modifier.padding(top = 8.dp),
+                text = stringResource(id = R.string.details_field).format(
+                    rocketLaunch.details ?: ""
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun TopBar() {
+    Text(text = stringResource(id = R.string.app_name))
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun PullToRefreshRocketLaunches(
+    modifier: Modifier,
+    refreshing: Boolean,
+    listRocketLaunch: List<RocketLaunch>,
+    refresh: () -> Unit,
+) {
+    val state = rememberPullRefreshState(refreshing, refresh)
+    Box(
+        modifier = modifier.pullRefresh(state)
+    ) {
+        LazyColumn(Modifier.fillMaxSize()) {
+            if (!refreshing) {
+                items(listRocketLaunch) {
+                    RocketLaunch(Modifier.padding(8.dp), rocketLaunch = it)
+                }
+            }
+        }
+
+        PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
     }
 }
