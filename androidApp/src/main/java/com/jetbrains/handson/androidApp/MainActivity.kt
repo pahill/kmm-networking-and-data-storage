@@ -4,14 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -20,11 +14,13 @@ import androidx.compose.ui.unit.dp
 import com.jetbrains.handson.androidApp.ui.theme.AppTheme
 import com.jetbrains.handson.kmm.shared.SpaceXSDK
 import com.jetbrains.handson.kmm.shared.entity.RocketLaunch
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 
 class MainActivity : ComponentActivity() {
 
-    private val sdk = SpaceXSDK()
+    private val sdk: SpaceXSDK = SpaceXSDK()
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,28 +36,34 @@ class MainActivity : ComponentActivity() {
                             TopAppBar(title = { TopBar() })
                         }
                     ) { paddingValues ->
-                        val refreshScope = rememberCoroutineScope()
-                        var refreshing by remember { mutableStateOf(false) }
-                        var listRocketLaunch by remember { mutableStateOf(emptyList<RocketLaunch>()) }
-
-                        LaunchedEffect(Unit) {
-                            listRocketLaunch = sdk.getLaunches()
+                        var loading = remember {
+                            mutableStateOf(true)
+                        }
+                        var rocketLaunches = remember {
+                            mutableStateOf(emptyList<RocketLaunch>())
                         }
 
-                        fun refresh() {
-                            refreshScope.launch {
-                                refreshing = true
-                                listRocketLaunch = sdk.getLaunches()
-                                refreshing = false
+                        LaunchedEffect(Unit) {
+                            val launches = sdk.getLaunches()
+                            launches.collect() { println(it)
+                            rocketLaunches.value = it
+                                loading.value = false
                             }
                         }
 
-                        PullToRefreshRocketLaunches(
-                            refreshing = refreshing,
-                            refresh = ::refresh,
-                            listRocketLaunch = listRocketLaunch,
-                            modifier = Modifier.padding((paddingValues))
-                        )
+                        if (loading.value) {
+                            Text(text = "Loading")
+                        } else {
+                            Box(
+                                modifier = Modifier.padding(paddingValues)
+                            ) {
+                                Column(Modifier.fillMaxSize()) {
+                                    rocketLaunches.value.forEach {
+                                        RocketLaunch(modifier = Modifier.padding(8.dp), rocketLaunch = it)
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -88,11 +90,20 @@ fun RocketLaunch(modifier: Modifier, rocketLaunch: RocketLaunch) {
         shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = stringResource(id = R.string.mission_name_field).format(rocketLaunch.missionName))
-            MissionStatus(Modifier.padding(top = 8.dp), rocketLaunch.launchSuccess)
+            Text(
+                text = stringResource(id = R.string.mission_name_field).format(
+                    rocketLaunch.missionName
+                )
+            )
+            MissionStatus(
+                Modifier.padding(top = 8.dp),
+                rocketLaunch.launchSuccess
+            )
             Text(
                 modifier = Modifier.padding(top = 8.dp),
-                text = stringResource(id = R.string.launch_year_field).format(rocketLaunch.launchYear)
+                text = stringResource(id = R.string.launch_year_field).format(
+                    rocketLaunch.launchYear
+                )
             )
             Text(
                 modifier = Modifier.padding(top = 8.dp),
@@ -107,28 +118,4 @@ fun RocketLaunch(modifier: Modifier, rocketLaunch: RocketLaunch) {
 @Composable
 fun TopBar() {
     Text(text = stringResource(id = R.string.app_name))
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun PullToRefreshRocketLaunches(
-    modifier: Modifier,
-    refreshing: Boolean,
-    listRocketLaunch: List<RocketLaunch>,
-    refresh: () -> Unit,
-) {
-    val state = rememberPullRefreshState(refreshing, refresh)
-    Box(
-        modifier = modifier.pullRefresh(state)
-    ) {
-        LazyColumn(Modifier.fillMaxSize()) {
-            if (!refreshing) {
-                items(listRocketLaunch) {
-                    RocketLaunch(Modifier.padding(8.dp), rocketLaunch = it)
-                }
-            }
-        }
-
-        PullRefreshIndicator(refreshing, state, Modifier.align(Alignment.TopCenter))
-    }
 }

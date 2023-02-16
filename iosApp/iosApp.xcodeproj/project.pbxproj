@@ -3,12 +3,15 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7555FF81242A565900829871 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF80242A565900829871 /* iOSApp.swift */; };
 		215D840324F4CE180088BFDE /* RocketLaunchRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215D840224F4CE180088BFDE /* RocketLaunchRow.swift */; };
+		660BDA49299CC8BF00565B10 /* KMPNativeCoroutinesAsync in Frameworks */ = {isa = PBXBuildFile; productRef = 660BDA48299CC8BF00565B10 /* KMPNativeCoroutinesAsync */; };
+		660BDA4B299CC8BF00565B10 /* KMPNativeCoroutinesCore in Frameworks */ = {isa = PBXBuildFile; productRef = 660BDA4A299CC8BF00565B10 /* KMPNativeCoroutinesCore */; };
+		660BDA4D299CE7D300565B10 /* KMPNativeCoroutinesCombine in Frameworks */ = {isa = PBXBuildFile; productRef = 660BDA4C299CE7D300565B10 /* KMPNativeCoroutinesCombine */; };
+		7555FF81242A565900829871 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF80242A565900829871 /* iOSApp.swift */; };
 		7555FF83242A565900829871 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF82242A565900829871 /* ContentView.swift */; };
 		7555FF85242A565B00829871 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7555FF84242A565B00829871 /* Assets.xcassets */; };
 		7555FF88242A565B00829871 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7555FF87242A565B00829871 /* Preview Assets.xcassets */; };
@@ -57,6 +60,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				660BDA4D299CE7D300565B10 /* KMPNativeCoroutinesCombine in Frameworks */,
+				660BDA4B299CC8BF00565B10 /* KMPNativeCoroutinesCore in Frameworks */,
+				660BDA49299CC8BF00565B10 /* KMPNativeCoroutinesAsync in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,6 +169,11 @@
 			dependencies = (
 			);
 			name = iosApp;
+			packageProductDependencies = (
+				660BDA48299CC8BF00565B10 /* KMPNativeCoroutinesAsync */,
+				660BDA4A299CC8BF00565B10 /* KMPNativeCoroutinesCore */,
+				660BDA4C299CE7D300565B10 /* KMPNativeCoroutinesCombine */,
+			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* iosApp.app */;
 			productType = "com.apple.product-type.application";
@@ -235,6 +246,9 @@
 				Base,
 			);
 			mainGroup = 7555FF72242A565900829871;
+			packageReferences = (
+				662798D5299CC2E20036D6AB /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */,
+			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -634,6 +648,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		662798D5299CC2E20036D6AB /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rickclephas/KMP-NativeCoroutines.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.13.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		660BDA48299CC8BF00565B10 /* KMPNativeCoroutinesAsync */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 662798D5299CC2E20036D6AB /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;
+			productName = KMPNativeCoroutinesAsync;
+		};
+		660BDA4A299CC8BF00565B10 /* KMPNativeCoroutinesCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 662798D5299CC2E20036D6AB /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;
+			productName = KMPNativeCoroutinesCore;
+		};
+		660BDA4C299CE7D300565B10 /* KMPNativeCoroutinesCombine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 662798D5299CC2E20036D6AB /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;
+			productName = KMPNativeCoroutinesCombine;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7555FF73242A565900829871 /* Project object */;
 }

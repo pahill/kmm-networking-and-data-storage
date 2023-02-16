@@ -1,5 +1,4 @@
 buildscript {
-    val compose_ui_version by extra("1.2.0")
     repositories {
         gradlePluginPortal()
         google()
@@ -7,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.10")
         classpath("com.android.tools.build:gradle:7.4.1")
     }
 }
@@ -17,8 +16,4 @@ allprojects {
         google()
         mavenCentral()
     }
-}
-
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
 }
