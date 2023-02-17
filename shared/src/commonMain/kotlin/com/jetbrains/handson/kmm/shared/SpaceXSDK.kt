@@ -11,13 +11,7 @@ class SpaceXSDK() {
     private val api = SpaceXApi()
 
     @Throws(Exception::class)
-    suspend fun getLaunches(): Flow<List<RocketLaunch>> {
-        try {
-            return api.getAllLaunches()
-        }
-        catch (e: Exception){
-            println("@#$@#$*)@#$(@#)($@)#($"+e)
-            throw  e
-        }
+    fun getLaunches(): Flow<List<RocketLaunch>> {
+        return api.getAllLaunches()
     }
 }

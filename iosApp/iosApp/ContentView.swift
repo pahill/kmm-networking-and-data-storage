@@ -64,19 +64,11 @@ extension ContentView {
                 do {
                     let stream = asyncStream(for: self.sdk.getLaunchesNative())
                     for try await data in stream {
-                        data({rocketLaunch, something in
-                            //var b = Array<RocketLaunch>()
-                            self.launches = .result(rocketLaunch)
-                            return KotlinUnit()
-                            
-                        },{error, something in
-                            print(error)
-                            self.launches = .error(error.debugDescription)
-                            return KotlinUnit()
-                        })()
+                        self.launches = .result(data)
                     }
                 } catch {
                     print("Failed with error: \(error)")
+                    self.launches = .error("Error")
                 }
             }
 //            let publisher = createPublisher(for: self.sdk.getLaunchesNative())

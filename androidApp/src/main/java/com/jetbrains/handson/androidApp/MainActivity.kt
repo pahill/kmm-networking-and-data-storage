@@ -3,26 +3,32 @@ package com.jetbrains.handson.androidApp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.jetbrains.handson.androidApp.ui.theme.AppTheme
 import com.jetbrains.handson.kmm.shared.SpaceXSDK
 import com.jetbrains.handson.kmm.shared.entity.RocketLaunch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class MainActivity : ComponentActivity() {
 
-    private val sdk: SpaceXSDK = SpaceXSDK()
+    val viewModel: MainViewModel by viewModels()
 
-    @OptIn(ExperimentalMaterialApi::class)
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,40 +42,14 @@ class MainActivity : ComponentActivity() {
                             TopAppBar(title = { TopBar() })
                         }
                     ) { paddingValues ->
-                        var loading = remember {
-                            mutableStateOf(true)
-                        }
-                        var rocketLaunches = remember {
-                            mutableStateOf(emptyList<RocketLaunch>())
-                        }
-
-                        LaunchedEffect(Unit) {
-                            val launches = sdk.getLaunches()
-                            launches.collect() { println(it)
-                            rocketLaunches.value = it
-                                loading.value = false
-                            }
-                        }
-
-                        if (loading.value) {
-                            Text(text = "Loading")
-                        } else {
-                            Box(
-                                modifier = Modifier.padding(paddingValues)
-                            ) {
-                                Column(Modifier.fillMaxSize()) {
-                                    rocketLaunches.value.forEach {
-                                        RocketLaunch(modifier = Modifier.padding(8.dp), rocketLaunch = it)
-                                    }
-                                }
-                            }
-                        }
+                        RocketLaunches(viewModel, paddingValues)
                     }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun MissionStatus(modifier: Modifier, launchSuccess: Boolean?) {
@@ -119,3 +99,40 @@ fun RocketLaunch(modifier: Modifier, rocketLaunch: RocketLaunch) {
 fun TopBar() {
     Text(text = stringResource(id = R.string.app_name))
 }
+
+@Composable
+fun RocketLaunches(
+    viewModel: MainViewModel,
+    paddingValues: PaddingValues
+) {
+    val launches = viewModel.launches
+    val launchesState = launches.collectAsState()
+    if (launchesState.value.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
+            Text(
+                text = "Loading...",
+                modifier = Modifier
+                    .align(Center)
+            )
+        }
+    } else {
+        Box(
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            println("composable ${launchesState.value.size}")
+            Column(modifier = Modifier.fillMaxWidth()) {
+                launchesState.value.forEach {
+                    RocketLaunch(
+                        modifier = Modifier.padding(8.dp),
+                        rocketLaunch = it
+                    )
+                }
+            }
+        }
+    }
+}
+

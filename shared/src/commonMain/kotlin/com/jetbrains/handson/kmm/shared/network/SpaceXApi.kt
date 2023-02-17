@@ -7,10 +7,10 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 
@@ -28,25 +28,15 @@ class SpaceXApi {
         }
     }
 
-    suspend fun getAllLaunches(): MutableStateFlow<List<RocketLaunch>> {
-        println("hi")
-//        val rocketLaunches: List<RocketLaunch> =
-//            httpClient.get("https://api.spacexdata.com/v5/launches").body()
-//        println("rocketLaunched received")
+    fun getAllLaunches(): Flow<List<RocketLaunch>> = flow {
         val progressiveList = mutableListOf<RocketLaunch>()
-        val mutableStateFlow = MutableStateFlow(listOf<RocketLaunch>())
-        coroutineScope.launch {
-            httpClient.get("https://api.spacexdata.com/v5/launches").body<List<RocketLaunch>>().forEach { rocketLaunch ->
-                println(rocketLaunch)
-                delay(1000)
+        httpClient.get("https://api.spacexdata.com/v5/launches").body<List<RocketLaunch>>()
+            .forEach { rocketLaunch ->
                 progressiveList.add(0, rocketLaunch)
-               // println(progressiveList.count())
-                mutableStateFlow.value = progressiveList.toList()
+                println("progressiveList ${progressiveList.size}")
+                emit(progressiveList)
+                delay(1000)
             }
-        }
-        println("finished launching")
-
-        return mutableStateFlow
     }
 }
 
