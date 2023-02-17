@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.Center
@@ -13,16 +15,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import com.jetbrains.handson.androidApp.ui.theme.AppTheme
-import com.jetbrains.handson.kmm.shared.SpaceXSDK
 import com.jetbrains.handson.kmm.shared.entity.RocketLaunch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 class MainActivity : ComponentActivity() {
 
@@ -105,9 +100,10 @@ fun RocketLaunches(
     viewModel: MainViewModel,
     paddingValues: PaddingValues
 ) {
-    val launches = viewModel.launches
-    val launchesState = launches.collectAsState()
-    if (launchesState.value.isEmpty()) {
+    val launches = remember {
+        mutableStateOf(viewModel.launches)
+    }.value.collectAsState()
+    if (launches.value.isEmpty()) {
         Box(
             modifier = Modifier
                 .padding(paddingValues)
@@ -123,9 +119,9 @@ fun RocketLaunches(
         Box(
             modifier = Modifier.padding(paddingValues)
         ) {
-            println("composable ${launchesState.value.size}")
-            Column(modifier = Modifier.fillMaxWidth()) {
-                launchesState.value.forEach {
+            println("composable ${launches.value.size}")
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(items = launches.value) {
                     RocketLaunch(
                         modifier = Modifier.padding(8.dp),
                         rocketLaunch = it

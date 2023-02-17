@@ -29,10 +29,10 @@ class SpaceXApi {
     }
 
     fun getAllLaunches(): Flow<List<RocketLaunch>> = flow {
-        val progressiveList = mutableListOf<RocketLaunch>()
+        var progressiveList = listOf<RocketLaunch>()
         httpClient.get("https://api.spacexdata.com/v5/launches").body<List<RocketLaunch>>()
             .forEach { rocketLaunch ->
-                progressiveList.add(0, rocketLaunch)
+                progressiveList = listOf(rocketLaunch) + progressiveList
                 println("progressiveList ${progressiveList.size}")
                 emit(progressiveList)
                 delay(1000)
