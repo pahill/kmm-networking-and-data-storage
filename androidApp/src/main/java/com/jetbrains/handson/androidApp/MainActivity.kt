@@ -18,13 +18,12 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jetbrains.handson.androidApp.ui.theme.AppTheme
-import com.jetbrains.handson.kmm.shared.SpaceXSDK
 import com.jetbrains.handson.kmm.shared.entity.RocketLaunch
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private val sdk = SpaceXSDK()
+    //sdk
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,13 +44,13 @@ class MainActivity : ComponentActivity() {
                         var listRocketLaunch by remember { mutableStateOf(emptyList<RocketLaunch>()) }
 
                         LaunchedEffect(Unit) {
-                            listRocketLaunch = sdk.getLaunches()
+                            //sdk
                         }
 
                         fun refresh() {
                             refreshScope.launch {
                                 refreshing = true
-                                listRocketLaunch = sdk.getLaunches()
+                                //sdk
                                 refreshing = false
                             }
                         }

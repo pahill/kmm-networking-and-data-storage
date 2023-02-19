@@ -38,23 +38,14 @@ extension ContentView {
     }
 
     class ViewModel: ObservableObject {
-        let sdk: SpaceXSDK
+        //sdk
         @Published var launches = LoadableLaunches.loading
 
-        init(sdk: SpaceXSDK) {
-            self.sdk = sdk
-            self.loadLaunches()
-        }
+        //sdk
 
         func loadLaunches() {
             self.launches = .loading
-            sdk.getLaunches(completionHandler: { launches, error in
-                if let launches = launches {
-                    self.launches = .result(launches)
-                } else {
-                    self.launches = .error(error?.localizedDescription ?? "error")
-                }
-            })
+            //sdk
         }
     }
 }

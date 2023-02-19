@@ -3,39 +3,35 @@ package com.jetbrains.handson.kmm.shared.entity
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 
-@Serializable
 data class RocketLaunch(
-    @SerialName("flight_number")
+    //flight_number
     val flightNumber: Int,
-    @SerialName("name")
+    //name
     val missionName: String,
-    @SerialName("date_utc")
+    //date_utc
     val launchDateUTC: String,
-    @SerialName("details")
+    //details
     val details: String?,
-    @SerialName("success")
+    //success
     val launchSuccess: Boolean?,
-    @SerialName("links")
+    //links
     val links: Links
 ) {
     var launchYear = launchDateUTC.toInstant().toLocalDateTime(TimeZone.UTC).year
 }
 
-@Serializable
+
 data class Links(
-    @SerialName("patch")
+    //patch
     val patch: Patch?,
-    @SerialName("article")
+    //article
     val article: String?
 )
 
-@Serializable
 data class Patch(
-    @SerialName("small")
+    //small
     val small: String?,
-    @SerialName("large")
+    //large
     val large: String?
 )
