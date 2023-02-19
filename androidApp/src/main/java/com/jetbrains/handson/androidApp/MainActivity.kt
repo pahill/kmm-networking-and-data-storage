@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import com.jetbrains.handson.androidApp.ui.theme.AppTheme
 import com.jetbrains.handson.kmm.shared.entity.RocketLaunch
 
@@ -23,7 +22,7 @@ class MainActivity : ComponentActivity() {
 
     val viewModel: MainViewModel by viewModels()
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -100,9 +99,7 @@ fun RocketLaunches(
     viewModel: MainViewModel,
     paddingValues: PaddingValues
 ) {
-    val launches = remember {
-        mutableStateOf(viewModel.launches)
-    }.value.collectAsState()
+    val launches = remember { mutableStateOf(viewModel.launches) }.value.collectAsState()
     if (launches.value.isEmpty()) {
         Box(
             modifier = Modifier
@@ -119,7 +116,6 @@ fun RocketLaunches(
         Box(
             modifier = Modifier.padding(paddingValues)
         ) {
-            println("composable ${launches.value.size}")
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(items = launches.value) {
                     RocketLaunch(
@@ -131,4 +127,3 @@ fun RocketLaunches(
         }
     }
 }
-
