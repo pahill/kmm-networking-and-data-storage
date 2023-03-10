@@ -21,10 +21,11 @@ import com.jetbrains.handson.androidApp.ui.theme.AppTheme
 import com.jetbrains.handson.kmm.shared.SpaceXSDK
 import com.jetbrains.handson.kmm.shared.entity.RocketLaunch
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
 
-    private val sdk = SpaceXSDK()
+    private val sdk: SpaceXSDK by inject()
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {

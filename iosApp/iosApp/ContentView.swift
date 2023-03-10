@@ -38,10 +38,10 @@ extension ContentView {
     }
 
     class ViewModel: ObservableObject {
-        let sdk: SpaceXSDK
+        let sdk: SDKHelper
         @Published var launches = LoadableLaunches.loading
 
-        init(sdk: SpaceXSDK) {
+        init(sdk: SDKHelper) {
             self.sdk = sdk
             self.loadLaunches()
         }
