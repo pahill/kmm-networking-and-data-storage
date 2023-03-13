@@ -21,10 +21,23 @@ struct ContentView: View {
             return AnyView(Text("Loading...").multilineTextAlignment(.center))
         case .result(let launches):
             return AnyView(List(launches) { launch in
-                RocketLaunchRow(rocketLaunch: launch)
+                RocketLaunchRow(rocketLaunch: launch, action: {showMoreContent(rocketLaunch: launch)})
             })
         case .error(let description):
             return AnyView(Text(description).multilineTextAlignment(.center))
+        }
+    }
+    
+    private func showMoreContent(rocketLaunch: RocketLaunch){
+        let showMoreContent: MoreContent = viewModel.getMoreContent(rocketLaunch: rocketLaunch)
+        if (showMoreContent is MoreContent.YoutubeContent) { let content = (showMoreContent as? MoreContent.YoutubeContent); openLink(link:  content?.link)}
+        else if (showMoreContent is MoreContent.ArticleContent) { let content = (showMoreContent as? MoreContent.ArticleContent); openLink(link: content?.link)}
+        else if (showMoreContent is MoreContent.WikipediaContent) { let content = (showMoreContent as? MoreContent.WikipediaContent); openLink(link: content?.link)}
+    }
+    
+    private func openLink(link: String?){
+        if let link = URL(string: link!) {
+          UIApplication.shared.open(link)
         }
     }
 }
@@ -38,7 +51,7 @@ extension ContentView {
     }
     
     @MainActor
-    class ViewModel: ObservableObject {
+    class ViewModel: MainViewModel, ObservableObject {
         let sdk: SpaceXSDK
         
         @Published var launches = LoadableLaunches.loading

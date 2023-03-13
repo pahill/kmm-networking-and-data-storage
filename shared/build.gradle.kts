@@ -35,6 +35,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:$dateTimeVersion")
+                implementation("com.rickclephas.kmm:kmm-viewmodel-core:1.0.0-ALPHA-3")
             }
         }
 
@@ -46,6 +47,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-android:$ktorVersion")
+                implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
             }
         }
         val iosX64Main by getting

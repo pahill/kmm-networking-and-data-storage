@@ -28,8 +28,14 @@ data class RocketLaunch(
 data class Links(
     @SerialName("patch")
     val patch: Patch?,
+    @SerialName("webcast")
+    val youtubeLink: String?,
+    @SerialName("youtube_id")
+    val youtubeId: String?,
+    @SerialName("wikipedia")
+    val wikipediaLink: String?,
     @SerialName("article")
-    val article: String?
+    val articleLink: String?
 )
 
 @Serializable

@@ -1,6 +1,10 @@
 package com.jetbrains.handson.androidApp
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -17,10 +21,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.jetbrains.handson.androidApp.ui.theme.AppTheme
 import com.jetbrains.handson.kmm.shared.entity.RocketLaunch
+import com.jetbrains.handson.kmm.shared.viewmodel.MoreContent
 
 class MainActivity : ComponentActivity() {
 
-    val viewModel: MainViewModel by viewModels()
+    private val viewModel: AndroidMainViewModel by viewModels()
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,11 +41,50 @@ class MainActivity : ComponentActivity() {
                             TopAppBar(title = { TopBar() })
                         }
                     ) { paddingValues ->
-                        RocketLaunches(viewModel, paddingValues)
+                        RocketLaunches(viewModel, paddingValues, ::showMore)
                     }
                 }
             }
         }
+    }
+
+    private fun showMore(rocketLaunch: RocketLaunch) {
+        when (val showMoreContent = viewModel.getMoreContent(rocketLaunch)) {
+            is MoreContent.ArticleContent -> showWebsite(showMoreContent.link)
+            MoreContent.NoContent -> showAlertForNoMoreContent()
+            is MoreContent.WikipediaContent -> showWebsite(showMoreContent.link)
+            is MoreContent.YoutubeContent -> maybeShowYoutube(
+                showMoreContent.link,
+                showMoreContent.id
+            )
+        }
+    }
+
+    private fun showWebsite(link: String) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse(link)
+        startActivity(intent)
+    }
+
+    private fun maybeShowYoutube(link: String, id: String) {
+        val appIntent = Intent(
+            Intent.ACTION_VIEW, Uri.parse(
+                "vnd.youtube:$id"
+            )
+        )
+        val webIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(link)
+        )
+        try {
+            startActivity(appIntent)
+        } catch (ex: ActivityNotFoundException) {
+            startActivity(webIntent)
+        }
+    }
+
+    private fun showAlertForNoMoreContent() {
+        Toast.makeText(this, "No more content", Toast.LENGTH_LONG).show()
     }
 }
 
@@ -56,7 +100,7 @@ fun MissionStatus(modifier: Modifier, launchSuccess: Boolean?) {
 }
 
 @Composable
-fun RocketLaunch(modifier: Modifier, rocketLaunch: RocketLaunch) {
+fun RocketLaunch(modifier: Modifier, rocketLaunch: RocketLaunch, showMore: (RocketLaunch) -> Unit) {
     Card(
         modifier = modifier.fillMaxWidth(),
         backgroundColor = Color.White,
@@ -85,6 +129,9 @@ fun RocketLaunch(modifier: Modifier, rocketLaunch: RocketLaunch) {
                     rocketLaunch.details ?: ""
                 )
             )
+            Button(onClick = { showMore(rocketLaunch) }) {
+                Text(text = stringResource(id = R.string.show_more_field))
+            }
         }
     }
 }
@@ -96,8 +143,9 @@ fun TopBar() {
 
 @Composable
 fun RocketLaunches(
-    viewModel: MainViewModel,
-    paddingValues: PaddingValues
+    viewModel: AndroidMainViewModel,
+    paddingValues: PaddingValues,
+    onRocketLaunch: (RocketLaunch) -> Unit
 ) {
     val launches = remember { mutableStateOf(viewModel.launches) }.value.collectAsState()
     if (launches.value.isEmpty()) {
@@ -117,10 +165,11 @@ fun RocketLaunches(
             modifier = Modifier.padding(paddingValues)
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(items = launches.value) {
+                items(items = launches.value) { it ->
                     RocketLaunch(
                         modifier = Modifier.padding(8.dp),
-                        rocketLaunch = it
+                        rocketLaunch = it,
+                        showMore = { rocketLaunch -> onRocketLaunch(rocketLaunch) }
                     )
                 }
             }

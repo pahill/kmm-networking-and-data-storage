@@ -23,6 +23,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha01")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+    implementation("com.rickclephas.kmm:kmm-viewmodel-core:1.0.0-ALPHA-3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
 }
 
 android {

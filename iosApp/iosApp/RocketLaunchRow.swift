@@ -11,6 +11,7 @@ import shared
 
 struct RocketLaunchRow: View {
     var rocketLaunch: RocketLaunch
+    var action: () -> Void
 
     var body: some View {
         HStack() {
@@ -19,6 +20,7 @@ struct RocketLaunchRow: View {
                 Text(launchText).foregroundColor(launchColor)
                 Text("Launch year: \(String(rocketLaunch.launchYear))")
                 Text("Launch details: \(rocketLaunch.details ?? "")")
+                Button("Show more", action: action)
             }
             Spacer()
         }
