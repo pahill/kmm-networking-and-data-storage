@@ -46,7 +46,7 @@ extension ContentView {
             self.loadLaunches(forceReload: false)
         }
 
-        func loadLaunches(forceReload: Boolean) {
+        func loadLaunches(forceReload: Bool) {
             self.launches = .loading
             sdk.getLaunches(forceReload: forceReload, completionHandler: { launches, error in
                 if let launches = launches {
