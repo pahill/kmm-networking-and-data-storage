@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.serialization") version "1.7.0"
+    kotlin("plugin.serialization") version "1.8.20-Beta"
+    id("app.cash.sqldelight") version "2.0.0-alpha05"
     id("com.android.library")
 }
 
@@ -33,6 +34,8 @@ kotlin {
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:$dateTimeVersion")
+                implementation("app.cash.sqldelight:runtime:2.0.0-alpha05")
+                implementation("app.cash.sqldelight:primitive-adapters:2.0.0-alpha05")
             }
         }
 
@@ -44,6 +47,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-android:$ktorVersion")
+                implementation("app.cash.sqldelight:android-driver:2.0.0-alpha05")
+                implementation("app.cash.sqldelight:primitive-adapters-jvm:2.0.0-alpha05")
             }
         }
         val androidTest by getting
@@ -58,6 +63,8 @@ kotlin {
 
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+                implementation("app.cash.sqldelight:native-driver:2.0.0-alpha05")
+                implementation("app.cash.sqldelight:primitive-adapters:2.0.0-alpha05")
             }
         }
         val iosX64Test by getting
@@ -78,5 +85,13 @@ android {
     defaultConfig {
         minSdk = 21
         targetSdk = 32
+    }
+}
+
+sqldelight {
+    databases {
+        create("AppDatabase") {
+            packageName.set("com.jetbrains.handson.kmm.shared.cache")
+        }
     }
 }
