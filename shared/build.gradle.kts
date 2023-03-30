@@ -1,11 +1,14 @@
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.serialization") version "1.7.0"
+    kotlin("plugin.serialization") version "1.8.0"
     id("com.android.library")
+    id("com.google.devtools.ksp") version "1.8.0-1.0.9"
+    id("de.jensklingenberg.ktorfit") version "1.0.0"
 }
 
 group = "com.jetbrains.handson"
 version = "1.0"
+val ktorfitVersion = "1.0.1"
 
 kotlin {
     android()
@@ -24,6 +27,7 @@ kotlin {
     val coroutinesVersion = "1.6.2"
     val dateTimeVersion = "0.4.0"
 
+
     sourceSets {
 
         val commonMain by getting {
@@ -33,6 +37,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:$dateTimeVersion")
+                implementation("de.jensklingenberg.ktorfit:ktorfit-lib:$ktorfitVersion")
             }
         }
 
@@ -79,4 +84,11 @@ android {
         minSdk = 21
         targetSdk = 32
     }
+}
+
+dependencies {
+    add("kspCommonMainMetadata", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfitVersion")
+    add("kspAndroid", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfitVersion")
+    add("kspIosX64", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfitVersion")
+    add("kspIosSimulatorArm64", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfitVersion")
 }
